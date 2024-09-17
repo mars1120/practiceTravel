@@ -1,4 +1,4 @@
-package com.travel.app.network
+package com.travel.app.data
 
 
 import com.google.gson.annotations.SerializedName
