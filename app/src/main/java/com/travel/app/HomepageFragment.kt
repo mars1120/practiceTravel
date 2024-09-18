@@ -47,9 +47,12 @@ class HomepageFragment : Fragment() {
 
     @Composable
     fun initData(viewModel: HomepageViewModel) {
-        val dataState = viewModel.total.observeAsState()
+        val dataState = viewModel.result.observeAsState()
         dataState.value?.let {
-            Greeting(it.toString())
+            val orNull = it.getOrNull()
+            if (orNull != null) {
+            Greeting(orNull.total.toString())
+        }
         }
 
     }
