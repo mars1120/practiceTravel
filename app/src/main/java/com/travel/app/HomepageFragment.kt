@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.travel.app.databinding.FragmentHomepageBinding
 import com.travel.app.homepage.HomepageViewModel
+import com.travel.app.ui.overview.OverviewScreen
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -48,18 +48,11 @@ class HomepageFragment : Fragment() {
     @Composable
     fun initData(viewModel: HomepageViewModel) {
         val dataState = viewModel.result.observeAsState()
-        dataState.value?.let {
-            val orNull = it.getOrNull()
-            if (orNull != null) {
-            Greeting(orNull.body()?.total.toString())
+        dataState.value?.let { result ->
+            result.getOrNull()?.body()?.data?.let {
+                OverviewScreen(data = it)
+            }
         }
-        }
-
-    }
-
-    @Composable
-    fun Greeting(info: String) {
-        Text(info)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
