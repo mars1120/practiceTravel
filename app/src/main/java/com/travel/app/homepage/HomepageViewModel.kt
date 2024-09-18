@@ -8,7 +8,7 @@ import com.travel.app.network.TravelApi
 import com.travel.app.network.TravelNewsRepository
 import kotlinx.coroutines.launch
 
-class HomepageViewModel :ViewModel(){
+class HomepageViewModel : ViewModel() {
     private val _total = MutableLiveData<Int>()
 
     val total: LiveData<Int> = _total
@@ -17,7 +17,6 @@ class HomepageViewModel :ViewModel(){
 //    init {
 //        getTravelNews()
 //    }
-
 
 
 //    private fun getTravelNews() {

@@ -51,7 +51,7 @@ class HomepageFragment : Fragment() {
         dataState.value?.let {
             val orNull = it.getOrNull()
             if (orNull != null) {
-            Greeting(orNull.total.toString())
+            Greeting(orNull.body()?.total.toString())
         }
         }
 

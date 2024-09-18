@@ -15,21 +15,6 @@ object NetworkRequest {
      */
     private val service = ServiceCreator.create(ApiService::class.java)
 
-    suspend fun getTravelNews() = service.getTravelNews().await()
-
-
-    private suspend fun <T> Call<T>.await(): T = suspendCoroutine {
-        enqueue(object : Callback<T> {
-            override fun onResponse(call: Call<T>, response: Response<T>) {
-                val body = response.body()
-                if (body != null) it.resume(body)
-                else it.resumeWithException(RuntimeException("response body is null"))
-            }
-
-            override fun onFailure(call: Call<T>, t: Throwable) {
-                it.resumeWithException(t)
-            }
-        })
-    }
+    suspend fun getTravelNews() = service.getTravelNews()
 }
 
