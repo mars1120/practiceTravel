@@ -5,8 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.travel.app.databinding.FragmentSecondBinding
+import com.travel.app.homepage.HomepageViewModel
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -14,6 +16,7 @@ import com.travel.app.databinding.FragmentSecondBinding
 class SecondFragment : Fragment() {
 
     private var _binding: FragmentSecondBinding? = null
+    private val homepageViewModel: HomepageViewModel by activityViewModels()
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,6 +28,10 @@ class SecondFragment : Fragment() {
     ): View {
 
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
+        homepageViewModel.clickedItem.observe(viewLifecycleOwner) { item ->
+            // Use the clicked item information here
+            binding.textviewSecond.text = "Clicked item: $item"
+        }
         return binding.root
 
     }

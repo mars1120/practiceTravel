@@ -2,6 +2,7 @@ package com.travel.app.homepage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.travel.app.data.TravelNews
@@ -12,6 +13,13 @@ import kotlinx.coroutines.launch
 class HomepageViewModel(
     private val repository: ITravelNewsRepository = TravelNewsRepositoryImpl()
 ) : ViewModel() {
+    private val _clickedItem = MutableLiveData<Int>()
+    val clickedItem: LiveData<Int> = _clickedItem
+
+    fun setClickedItem(item: Int) {
+        _clickedItem.value = item
+    }
+
     private val _resultA = MediatorLiveData<Result<TravelNews>?>()
     val resultA: LiveData<Result<TravelNews>?> = _resultA
 

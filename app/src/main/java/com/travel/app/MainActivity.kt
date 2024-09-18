@@ -1,7 +1,7 @@
 package com.travel.app
 
+import android.content.Context
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -9,20 +9,23 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
-import androidx.lifecycle.viewModelScope
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.travel.app.databinding.ActivityMainBinding
-import com.travel.app.network.TravelApi
-import com.travel.app.network.TravelApiService
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
 
+val Context.dataStore by preferencesDataStore(name = "settings")
+class MainActivity : AppCompatActivity() {
+    private val isFirstLaunch="is_first_launch"
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var navController: NavController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,25 +34,41 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         getSupportActionBar()?.setDisplayShowTitleEnabled(false)
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        lifecycleScope.launch {
+            if (isFirstLaunch()) {
+                setFirstLaunchCompleted()
+            }
+        }
+
     }
 
-    val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
+    private suspend fun isFirstLaunch(): Boolean {
+        val key = booleanPreferencesKey(isFirstLaunch)
+        return dataStore.data
+            .map { preferences ->
+                preferences[key] ?: true
+            }
+            .first()
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        CoroutineScope(Dispatchers.IO + coroutineExceptionHandler).launch {
-//            try {
-//                println(TravelApi.retrofitService.getNews().toString())
-//            } catch (e: Exception) {
-//            }
-//        }
-//    }
+    private suspend fun setFirstLaunchCompleted() {
+        val key = booleanPreferencesKey(isFirstLaunch)
+        dataStore.edit { preferences ->
+            preferences[key] = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (navController.currentDestination?.id == R.id.SecondFragment) {
+            navController.popBackStack()
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

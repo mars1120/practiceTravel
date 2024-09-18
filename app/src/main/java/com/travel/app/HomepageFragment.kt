@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment
 import com.travel.app.databinding.FragmentHomepageBinding
 import com.travel.app.homepage.HomepageViewModel
 import com.travel.app.ui.overview.OverviewScreen
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -33,7 +35,7 @@ class HomepageFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-
+    private val homepageViewModel: HomepageViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -47,7 +49,7 @@ class HomepageFragment : Fragment() {
             setContent {
                 // In Compose world
                 MaterialTheme {
-                    initData(HomepageViewModel())
+                    initData(homepageViewModel)
                 }
             }
         }
@@ -81,7 +83,12 @@ class HomepageFragment : Fragment() {
                 CircularProgressIndicator()
             }
         } else {
-            OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList())
+            OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList(),
+                { index ->
+                    viewModel.setClickedItem(index)
+                    findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+                }
+            )
         }
     }
 

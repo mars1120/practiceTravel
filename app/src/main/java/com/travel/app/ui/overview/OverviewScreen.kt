@@ -14,12 +14,13 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
 import com.travel.app.R
 import com.travel.app.data.TravelNews
+import com.travel.app.ui.components.ElevatedCard
 
 @Composable
 fun <T> OverviewScreen(
     dataA: List<T>,
     dataB: List<T>,
-    onClickSeeAllAccounts: () -> Unit = {},
+    onClickNews: (Int) -> Unit = {},
     onClickSeeAllBills: () -> Unit = {},
     onAccountClick: (String) -> Unit = {}
 ) {
@@ -43,10 +44,10 @@ fun <T> OverviewScreen(
         items(dataA.size) { index ->
             (dataA as? List<TravelNews.Data>)?.let { newsList ->
                 Column {
-                    BodyContent(newsList[index].title)
-                    Divider(
-                        modifier = Modifier,
-                        color = colorResource(R.color.black).copy(alpha = 0.08f)
+                    ElevatedCard(
+                        text = newsList[index].title,
+                        onClickItem = { onClickNews(index) },
+                        modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }
             }
