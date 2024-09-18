@@ -35,26 +35,21 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
-        }
     }
 
     val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
     }
 
-    override fun onResume() {
-        super.onResume()
-        CoroutineScope(Dispatchers.IO + coroutineExceptionHandler).launch {
-            try {
-                println(TravelApi.retrofitService.getNews().toString())
-            } catch (e: Exception) {
-            }
-        }
-    }
+//    override fun onResume() {
+//        super.onResume()
+//        CoroutineScope(Dispatchers.IO + coroutineExceptionHandler).launch {
+//            try {
+//                println(TravelApi.retrofitService.getNews().toString())
+//            } catch (e: Exception) {
+//            }
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
