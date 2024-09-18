@@ -9,28 +9,6 @@ import com.travel.app.network.TravelNewsRepository
 import kotlinx.coroutines.launch
 
 class HomepageViewModel : ViewModel() {
-    private val _total = MutableLiveData<Int>()
-
-    val total: LiveData<Int> = _total
     val result = TravelNewsRepository.getTravelNews()
-
-//    init {
-//        getTravelNews()
-//    }
-
-
-//    private fun getTravelNews() {
-//        // _status.value = "Set the Mars API status response here!"
-//        viewModelScope.launch {
-////            _status.value = MarsApiStatus.LOADING
-//            try {
-//                _total.value = TravelApi.retrofitService.getNews().total
-//
-//            } catch (e: Exception) {
-////                _status.value = MarsApiStatus.ERROR
-////                _photos.value = listOf()
-//            }
-//
-//        }
-//    }
+    val result1 = TravelNewsRepository.getTravelNews()
 }

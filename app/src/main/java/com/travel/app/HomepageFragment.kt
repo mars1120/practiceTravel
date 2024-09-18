@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.travel.app.databinding.FragmentHomepageBinding
@@ -47,12 +48,17 @@ class HomepageFragment : Fragment() {
 
     @Composable
     fun initData(viewModel: HomepageViewModel) {
-        val dataState = viewModel.result.observeAsState()
-        dataState.value?.let { result ->
-            result.getOrNull()?.body()?.data?.let {
-                OverviewScreen(data = it)
-            }
+        val dataStateA = viewModel.result.observeAsState()
+        val dataStateB = viewModel.result1.observeAsState()
+
+        val dataA = remember(dataStateA.value) {
+            dataStateA.value?.getOrNull()?.body()?.data ?: emptyList()
         }
+        val dataB = remember(dataStateB.value) {
+            dataStateB.value?.getOrNull()?.body()?.data ?: emptyList()
+        }
+
+        OverviewScreen(dataA = dataA, dataB = dataB)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
