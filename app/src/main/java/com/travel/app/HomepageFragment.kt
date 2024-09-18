@@ -4,10 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import com.travel.app.databinding.FragmentHomepageBinding
@@ -48,17 +57,32 @@ class HomepageFragment : Fragment() {
 
     @Composable
     fun initData(viewModel: HomepageViewModel) {
-        val dataStateA = viewModel.result.observeAsState()
-        val dataStateB = viewModel.result1.observeAsState()
+        var isLoading by remember { mutableStateOf(true) }
+        val dataStateA by viewModel.resultA.observeAsState()
+        val dataStateB by viewModel.resultB.observeAsState()
 
-        val dataA = remember(dataStateA.value) {
-            dataStateA.value?.getOrNull()?.body()?.data ?: emptyList()
-        }
-        val dataB = remember(dataStateB.value) {
-            dataStateB.value?.getOrNull()?.body()?.data ?: emptyList()
+        LaunchedEffect(Unit) {
+            viewModel.fetchData()
         }
 
-        OverviewScreen(dataA = dataA, dataB = dataB)
+        val dataA = remember(dataStateA) {
+            dataStateA?.getOrNull()?.data
+        }
+        val dataB = remember(dataStateB) {
+            dataStateB?.getOrNull()?.data
+        }
+
+        LaunchedEffect(dataA, dataB) {
+            isLoading = dataA == null || dataB == null
+        }
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList())
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

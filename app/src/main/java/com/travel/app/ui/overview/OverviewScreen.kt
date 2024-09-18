@@ -1,14 +1,18 @@
 package com.travel.app.ui.overview
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
+import com.travel.app.R
 import com.travel.app.data.TravelNews
 
 @Composable
@@ -24,13 +28,29 @@ fun <T> OverviewScreen(
         modifier = Modifier.padding(8.dp)
     ) {
         item {
-            Text(
-                "最新消息",
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+            Column {
+                Text(
+                    "最新消息",
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                Divider(
+                    modifier = Modifier,
+                    color = colorResource(R.color.black).copy(alpha = 0.08f)
+                )
+            }
         }
+
         items(dataA.size) { index ->
-            BodyContent(dataA[index].toString())
+            (dataA as? List<TravelNews.Data>)?.let { newsList ->
+                Column {
+                    BodyContent(newsList[index].title)
+                    Divider(
+                        modifier = Modifier,
+                        color = colorResource(R.color.black).copy(alpha = 0.08f)
+                    )
+                }
+            }
+
         }
 
         item {
@@ -40,7 +60,15 @@ fun <T> OverviewScreen(
             )
         }
         items(dataB.size) { index ->
-            BodyContent(dataB[index].toString())
+            (dataB as? List<TravelNews.Data>)?.let { newsList ->
+                Column {
+                    BodyContent(newsList[index].title)
+                    Divider(
+                        modifier = Modifier,
+                        color = colorResource(R.color.black).copy(alpha = 0.08f)
+                    )
+                }
+            }
         }
     }
 }
