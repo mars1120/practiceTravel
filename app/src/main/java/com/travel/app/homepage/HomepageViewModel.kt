@@ -2,15 +2,16 @@ package com.travel.app.homepage
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.travel.app.data.TravelNews
-import com.travel.app.network.TravelApi
-import com.travel.app.network.TravelNewsRepository
+import com.travel.app.network.ITravelNewsRepository
+import com.travel.app.network.TravelNewsRepositoryImpl
 import kotlinx.coroutines.launch
 
-class HomepageViewModel : ViewModel() {
+class HomepageViewModel(
+    private val repository: ITravelNewsRepository = TravelNewsRepositoryImpl()
+) : ViewModel() {
     private val _resultA = MediatorLiveData<Result<TravelNews>?>()
     val resultA: LiveData<Result<TravelNews>?> = _resultA
 
@@ -19,7 +20,7 @@ class HomepageViewModel : ViewModel() {
 
     fun fetchData() {
         viewModelScope.launch {
-            val sourceA = TravelNewsRepository.getTravelNews()
+            val sourceA = repository.getTravelNews()
             _resultA.addSource(sourceA) { result ->
                 _resultA.value = result.fold(
                     onSuccess = { response ->
@@ -35,7 +36,7 @@ class HomepageViewModel : ViewModel() {
                 )
             }
 
-            val sourceB = TravelNewsRepository.getTravelNews()
+            val sourceB = repository.getTravelNews()
             _resultB.addSource(sourceB) { result ->
                 _resultB.value = result.fold(
                     onSuccess = { response ->
