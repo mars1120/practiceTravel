@@ -14,6 +14,9 @@
         <action
             android:id="@+id/action_HomepageFragment_to_NewsDetailFragment"
             app:destination="@id/NewsDetailFragment" />
+        <action
+            android:id="@+id/action_HomepageFragment_to_AttractionsDetailFragment"
+            app:destination="@id/AttractionsDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/NewsDetailFragment"
@@ -24,5 +27,13 @@
         <action
             android:id="@+id/action_NewsdetailFragment_to_HomepageFragment"
             app:destination="@id/HomepageFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/AttractionsDetailFragment"
+        android:name="com.travel.app.AttractionsFragment"
+        android:label="@string/title_travel_info"
+        tools:layout="@layout/fragment_attractions" >
+
     </fragment>
 </navigation>

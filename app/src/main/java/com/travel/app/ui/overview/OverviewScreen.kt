@@ -25,7 +25,7 @@ fun <T> OverviewScreen(
     dataA: List<T>,
     dataB: List<T>,
     onClickNews: (Int) -> Unit = {},
-    onClickAttraction: () -> Unit = {}
+    onClickAttraction: (Int) -> Unit = {}
 ) {
     LazyColumn(
         state = rememberLazyListState(),
@@ -71,7 +71,7 @@ fun <T> OverviewScreen(
                         title = newsList[index].name,
                         desc = newsList[index].introduction,
                         imageUrl = newsList[index].images.firstOrNull()?.src.orEmpty(),
-                        onClickItem = { onClickAttraction() },
+                        onClickItem = { onClickAttraction(index) },
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
                 }

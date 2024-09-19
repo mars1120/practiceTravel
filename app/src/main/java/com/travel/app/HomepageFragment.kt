@@ -43,9 +43,7 @@ class HomepageFragment : Fragment(), MenuProvider {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentHomepageBinding.inflate(inflater, container, false)
-
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         homepageViewModel.currentTitle.observe(viewLifecycleOwner) { title ->
@@ -91,10 +89,15 @@ class HomepageFragment : Fragment(), MenuProvider {
             LoadingScreen()
         } else {
             OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList(),
-                { index ->
+                onClickNews = { index ->
                     homepageViewModel.setCurrentTitle(getString(R.string.title_news_detail))
                     viewModel.setClickedItem(index)
                     findNavController().navigate(R.id.action_HomepageFragment_to_NewsDetailFragment)
+                },
+                onClickAttraction = { index ->
+                    homepageViewModel.setCurrentTitle(getString(R.string.title_travel_info))
+                    viewModel.setClickedItem(index)
+                    findNavController().navigate(R.id.action_HomepageFragment_to_AttractionsDetailFragment)
                 }
             )
         }
