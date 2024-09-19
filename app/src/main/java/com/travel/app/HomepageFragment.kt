@@ -60,8 +60,8 @@ class HomepageFragment : Fragment() {
     @Composable
     fun initData(viewModel: HomepageViewModel) {
         var isLoading by remember { mutableStateOf(true) }
-        val dataStateA by viewModel.resultA.observeAsState()
-        val dataStateB by viewModel.resultB.observeAsState()
+        val dataStateA by viewModel.travelnewsResult.observeAsState()
+        val dataStateB by viewModel.attractionsResult.observeAsState()
 
         LaunchedEffect(Unit) {
             viewModel.fetchData()

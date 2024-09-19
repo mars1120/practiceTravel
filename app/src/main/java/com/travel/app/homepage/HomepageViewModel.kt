@@ -5,13 +5,14 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.travel.app.data.AttractionsAll
 import com.travel.app.data.TravelNews
-import com.travel.app.network.ITravelNewsRepository
-import com.travel.app.network.TravelNewsRepositoryImpl
+import com.travel.app.network.ITravelRepository
+import com.travel.app.network.TravelRepositoryImpl
 import kotlinx.coroutines.launch
 
 class HomepageViewModel(
-    private val repository: ITravelNewsRepository = TravelNewsRepositoryImpl()
+    private val repository: ITravelRepository = TravelRepositoryImpl()
 ) : ViewModel() {
     private val _clickedItem = MutableLiveData<Int>()
     val clickedItem: LiveData<Int> = _clickedItem
@@ -20,17 +21,16 @@ class HomepageViewModel(
         _clickedItem.value = item
     }
 
-    private val _resultA = MediatorLiveData<Result<TravelNews>?>()
-    val resultA: LiveData<Result<TravelNews>?> = _resultA
+    private val _travelnewResult = MediatorLiveData<Result<TravelNews>?>()
+    val travelnewsResult: LiveData<Result<TravelNews>?> = _travelnewResult
 
-    private val _resultB = MediatorLiveData<Result<TravelNews>?>()
-    val resultB: LiveData<Result<TravelNews>?> = _resultB
+    private val _attractionsResult = MediatorLiveData<Result<AttractionsAll>?>()
+    val attractionsResult: LiveData<Result<AttractionsAll>?> = _attractionsResult
 
     fun fetchData() {
         viewModelScope.launch {
-            val sourceA = repository.getTravelNews()
-            _resultA.addSource(sourceA) { result ->
-                _resultA.value = result.fold(
+            _travelnewResult.addSource(repository.getTravelNews()) { result ->
+                _travelnewResult.value = result.fold(
                     onSuccess = { response ->
                         if (response.isSuccessful) {
                             Result.success(response.body()!!)
@@ -44,9 +44,8 @@ class HomepageViewModel(
                 )
             }
 
-            val sourceB = repository.getTravelNews()
-            _resultB.addSource(sourceB) { result ->
-                _resultB.value = result.fold(
+            _attractionsResult.addSource(repository.getAttractionsAll()) { result ->
+                _attractionsResult.value = result.fold(
                     onSuccess = { response ->
                         if (response.isSuccessful) {
                             Result.success(response.body()!!)
