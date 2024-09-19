@@ -13,15 +13,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
-import com.travel.app.databinding.FragmentSecondBinding
+import com.travel.app.databinding.FragmentNewsdetailBinding
 import com.travel.app.homepage.HomepageViewModel
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class SecondFragment : Fragment(), MenuProvider {
+class NewsDetailFragment : Fragment(), MenuProvider {
 
-    private var _binding: FragmentSecondBinding? = null
+    private var _binding: FragmentNewsdetailBinding? = null
     private val homepageViewModel: HomepageViewModel by activityViewModels()
 
     // This property is only valid between onCreateView and
@@ -33,7 +33,7 @@ class SecondFragment : Fragment(), MenuProvider {
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = FragmentSecondBinding.inflate(inflater, container, false)
+        _binding = FragmentNewsdetailBinding.inflate(inflater, container, false)
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
@@ -59,7 +59,7 @@ class SecondFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonSecond.setOnClickListener {
-            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+            findNavController().navigate(R.id.action_NewsdetailFragment_to_HomepageFragment)
         }
     }
 

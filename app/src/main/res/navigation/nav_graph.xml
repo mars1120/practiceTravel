@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/HomepageFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/HomepageFragment"
         android:name="com.travel.app.HomepageFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/homepage_fragment_label"
         tools:layout="@layout/fragment_homepage" >
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_HomepageFragment_to_NewsDetailFragment"
+            app:destination="@id/NewsDetailFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.travel.app.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second" >
+        android:id="@+id/NewsDetailFragment"
+        android:name="com.travel.app.NewsDetailFragment"
+        android:label="@string/newsdetail_fragment_label"
+        tools:layout="@layout/fragment_newsdetail" >
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_NewsdetailFragment_to_HomepageFragment"
+            app:destination="@id/HomepageFragment" />
     </fragment>
 </navigation>

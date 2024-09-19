@@ -2,8 +2,8 @@
     <string name="app_name">TaipeiTravel</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="homepage_fragment_label">Homepage Fragment</string>
+    <string name="newsdetail_fragment_label">Newsdetail Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
@@ -44,4 +44,5 @@
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
     <string name="title_travel_taipei">悠遊台北</string>
+    <string name="title_news_detail">最新消息</string>
 </resources>

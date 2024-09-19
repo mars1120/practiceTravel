@@ -1,6 +1,5 @@
 package com.travel.app
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -99,9 +98,9 @@ class HomepageFragment : Fragment(), MenuProvider {
         } else {
             OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList(),
                 { index ->
-                    homepageViewModel.setCurrentTitle("最新消息")
+                    homepageViewModel.setCurrentTitle(getString(R.string.title_news_detail))
                     viewModel.setClickedItem(index)
-                    findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+                    findNavController().navigate(R.id.action_HomepageFragment_to_NewsDetailFragment)
                 }
             )
         }
