@@ -1,5 +1,6 @@
 package com.travel.app
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -7,11 +8,18 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -20,8 +28,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.travel.app.databinding.FragmentAttractionsBinding
 import com.travel.app.homepage.HomepageViewModel
+import com.travel.app.ui.attractionsdetail.AttractionsDetailScreen
+import com.travel.app.ui.attractionsdetail.PagerSample
 import com.travel.app.ui.components.LoadingScreen
 import com.travel.app.ui.newsdetail.ErrorScreen
+import com.travel.app.ui.newsdetail.NewsDetailScreen
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -76,8 +87,10 @@ class AttractionsFragment : Fragment(), MenuProvider {
             }
 
             else -> {
-                //TODO: add scereen
-                ErrorScreen("Invalid data")
+                attractionsResult?.getOrNull()?.data?.getOrNull(clickedItemIndex!!)?.let { item ->
+
+                    AttractionsDetailScreen( item.images.map { it.src },item.name,modifier = Modifier.height(160.dp))
+                } ?: ErrorScreen("Invalid data")
             }
         }
     }

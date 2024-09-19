@@ -80,4 +80,5 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation 'androidx.browser:browser:1.8.0'
+    implementation "com.google.accompanist:accompanist-pager:0.36.0"
 }
