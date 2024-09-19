@@ -14,11 +14,18 @@ import kotlinx.coroutines.launch
 class HomepageViewModel(
     private val repository: ITravelRepository = TravelRepositoryImpl()
 ) : ViewModel() {
-    private val _clickedItem = MutableLiveData<Int>()
+    private val _clickedItem = MutableLiveData<Int>(-1)
     val clickedItem: LiveData<Int> = _clickedItem
 
     fun setClickedItem(item: Int) {
         _clickedItem.value = item
+    }
+
+    private val _currentTitle = MutableLiveData<String>()
+    val currentTitle: LiveData<String> = _currentTitle
+
+    fun setCurrentTitle(title: String) {
+        _currentTitle.value = title
     }
 
     private val _travelnewResult = MediatorLiveData<Result<TravelNews>?>()
@@ -30,33 +37,27 @@ class HomepageViewModel(
     fun fetchData() {
         viewModelScope.launch {
             _travelnewResult.addSource(repository.getTravelNews()) { result ->
-                _travelnewResult.value = result.fold(
-                    onSuccess = { response ->
-                        if (response.isSuccessful) {
-                            Result.success(response.body()!!)
-                        } else {
-                            Result.failure(Exception("API error: ${response.code()}"))
-                        }
-                    },
-                    onFailure = {
-                        Result.failure(it)
+                _travelnewResult.value = result.fold(onSuccess = { response ->
+                    if (response.isSuccessful) {
+                        Result.success(response.body()!!)
+                    } else {
+                        Result.failure(Exception("API error: ${response.code()}"))
                     }
-                )
+                }, onFailure = {
+                    Result.failure(it)
+                })
             }
 
             _attractionsResult.addSource(repository.getAttractionsAll()) { result ->
-                _attractionsResult.value = result.fold(
-                    onSuccess = { response ->
-                        if (response.isSuccessful) {
-                            Result.success(response.body()!!)
-                        } else {
-                            Result.failure(Exception("API error: ${response.code()}"))
-                        }
-                    },
-                    onFailure = {
-                        Result.failure(it)
+                _attractionsResult.value = result.fold(onSuccess = { response ->
+                    if (response.isSuccessful) {
+                        Result.success(response.body()!!)
+                    } else {
+                        Result.failure(Exception("API error: ${response.code()}"))
                     }
-                )
+                }, onFailure = {
+                    Result.failure(it)
+                })
             }
         }
     }

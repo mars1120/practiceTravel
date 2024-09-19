@@ -16,8 +16,18 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            android:layout_width = "match_parent"
-            android:layout_height = "?attr/actionBarSize" />
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="20sp"
+                tools:text="title" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
   </com.google.android.material.appbar.AppBarLayout>
 
