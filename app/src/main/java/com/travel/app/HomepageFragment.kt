@@ -7,9 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,8 +15,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -31,6 +26,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import com.travel.app.ui.components.LoadingScreen
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -71,7 +67,7 @@ class HomepageFragment : Fragment(), MenuProvider {
     }
 
     @Composable
-    fun initData(viewModel: HomepageViewModel) {
+    private fun initData(viewModel: HomepageViewModel) {
         var isLoading by remember { mutableStateOf(true) }
         val dataStateA by viewModel.travelnewsResult.observeAsState()
         val dataStateB by viewModel.attractionsResult.observeAsState()
@@ -92,9 +88,7 @@ class HomepageFragment : Fragment(), MenuProvider {
         }
 
         if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            LoadingScreen()
         } else {
             OverviewScreen(dataA = dataA ?: emptyList(), dataB = dataB ?: emptyList(),
                 { index ->
@@ -131,6 +125,7 @@ class HomepageFragment : Fragment(), MenuProvider {
                 true
 
             }
+
             else -> false
         }
     }

@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
@@ -33,7 +34,7 @@ fun <T> OverviewScreen(
         item {
             Column {
                 Text(
-                    "最新消息",
+                    stringResource(R.string.text_news),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
                 Divider(
@@ -59,7 +60,7 @@ fun <T> OverviewScreen(
 
         item {
             Text(
-                "旅遊景點",
+                stringResource(R.string.text_attractions),
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }

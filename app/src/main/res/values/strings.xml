@@ -45,4 +45,6 @@
     </string>
     <string name="title_travel_taipei">悠遊台北</string>
     <string name="title_news_detail">最新消息</string>
+    <string name="text_news">最新消息</string>
+    <string name="text_attractions">旅遊景點</string>
 </resources>
