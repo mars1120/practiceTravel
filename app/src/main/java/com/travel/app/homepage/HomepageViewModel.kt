@@ -1,5 +1,6 @@
 package com.travel.app.homepage
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +9,8 @@ import com.travel.app.data.AttractionsAll
 import com.travel.app.data.TravelNews
 import com.travel.app.network.ITravelRepository
 import com.travel.app.network.TravelRepositoryImpl
-import retrofit2.Response
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import java.util.concurrent.atomic.AtomicInteger
 
 class HomepageViewModel(
@@ -47,34 +49,43 @@ class HomepageViewModel(
     private val _attractionsResult = MediatorLiveData<Result<AttractionsAll>?>()
     val attractionsResult: LiveData<Result<AttractionsAll>?> = _attractionsResult
 
+    private var travelNewsJob: Job? = null
+    private var attractionsJob: Job? = null
+
+
     fun fetchData(lang: String) {
-
-        _isLoading.value = true
-
+        travelNewsJob?.cancel()
+        attractionsJob?.cancel()
         activeJobs.set(2)
-
-        fetchDataSafely(_travelnewsResult) { repository.getTravelNews(lang) }
-        fetchDataSafely(_attractionsResult) { repository.getAttractionsAll(lang) }
-    }
-
-    private fun <T> fetchDataSafely(
-        resultLiveData: MediatorLiveData<Result<T>?>,
-        apiCall: () -> LiveData<Result<Response<T>>>
-    ) {
-        resultLiveData.addSource(apiCall()) { result ->
+        val (travelNewsLiveData, travelNewsJobNew) = repository.getTravelNews(lang)
+        travelNewsJob = travelNewsJobNew
+        _travelnewsResult.addSource(travelNewsLiveData) { result ->
             result.fold(
                 onSuccess = { response ->
-                    resultLiveData.value = if (response.isSuccessful) {
-                        Result.success(response.body()!!)
-                    } else {
-                        Result.failure(Exception("API error: ${response.code()}"))
-                    }
+                    _travelnewsResult.value = result
+                    checkLoadingComplete()
                 },
                 onFailure = {
-                    resultLiveData.value = Result.failure(it)
+                    if (it !is CancellationException)
+                        checkLoadingComplete()
                 }
             )
-            checkLoadingComplete()
+
+        }
+
+        val (attractionsLiveData, attractionsJobNew) = repository.getAttractionsAll(lang)
+        attractionsJob = attractionsJobNew
+        _attractionsResult.addSource(attractionsLiveData) { result ->
+            result.fold(
+                onSuccess = { response ->
+                    _attractionsResult.value = result
+                    checkLoadingComplete()
+                },
+                onFailure = {
+                    if (it !is CancellationException)
+                        checkLoadingComplete()
+                }
+            )
         }
     }
 

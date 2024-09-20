@@ -68,14 +68,10 @@ class HomepageFragment : Fragment(), MenuProvider {
 
     @Composable
     private fun initData(viewModel: HomepageViewModel) {
-        val lang by remember { mutableStateOf(Locale.getDefault().language.toExtendedLanguageCode()) }
         val isLoading by viewModel.isLoading.observeAsState(initial = true)
         val dataStateA by viewModel.travelnewsResult.observeAsState()
         val dataStateB by viewModel.attractionsResult.observeAsState()
 
-        LaunchedEffect(lang) {
-            viewModel.fetchData(lang)
-        }
 
         val dataA = remember(dataStateA) {
             dataStateA?.getOrNull()?.data
@@ -106,6 +102,11 @@ class HomepageFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+        homepageViewModel.fetchData(Locale.getDefault().language.toExtendedLanguageCode())
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -131,7 +132,7 @@ class HomepageFragment : Fragment(), MenuProvider {
             }
 
             R.id.action_zh -> {
-                if (Locale.getDefault().language.toExtendedLanguageCode() == "zh")
+                if (Locale.getDefault().language.toExtendedLanguageCode() == "zh_tw")
                     return false
                 homepageViewModel.setLangChanging(true)
                 AppCompatDelegate.setApplicationLocales(

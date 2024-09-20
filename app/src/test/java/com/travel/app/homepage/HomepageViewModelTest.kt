@@ -10,6 +10,7 @@ import com.travel.app.data.TravelNews
 import com.travel.app.network.ITravelRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -53,44 +54,51 @@ class HomepageViewModelTest {
     @Test
     fun verifyTravelApiResult(): Unit = runTest {
         val testLang = "zh-tw"
-        val resultData = getStringFromFiles("travelnewsResultData.txt")
-        // Prepare mock data
-        val mockTravelNews = Gson().fromJson(resultData, TravelNews::class.java)
-        val mockResponse = Response.success(mockTravelNews)
+
+        // Prepare TravelNews mock data
+        val travelNewsResultData = getStringFromFiles("travelnewsResultData.txt")
+        val mockTravelNews = gson.fromJson(travelNewsResultData, TravelNews::class.java)
+
+        // Prepare AttractionsAll mock data
+        val attractionsResultData = getStringFromFiles("attractionsResultData.txt")
+        val mockAttractionsAll = gson.fromJson(attractionsResultData, AttractionsAll::class.java)
 
         // Mock repository behavior
+        val travelNewsLiveData = MutableLiveData<Result<TravelNews>>()
+        val attractionsLiveData = MutableLiveData<Result<AttractionsAll>>()
+        val mockJob = Job()
+
         whenever(travelRepository.getTravelNews(testLang)).thenReturn(
-            MutableLiveData(Result.success(mockResponse))
+            Pair(
+                travelNewsLiveData,
+                mockJob
+            )
         )
-
-        val resultData1 = getStringFromFiles("attractionsResultData.txt")
-        // Prepare mock data
-        val mockAttractionsAll = Gson().fromJson(resultData1, AttractionsAll::class.java)
-        val mockResponse1 = Response.success(mockAttractionsAll)
-
-        // Mock repository behavior
         whenever(travelRepository.getAttractionsAll(testLang)).thenReturn(
-            MutableLiveData(Result.success(mockResponse1))
+            Pair(
+                attractionsLiveData,
+                mockJob
+            )
         )
 
         // Call the method under test
         viewModel.fetchData(testLang)
 
-        // Get the value from LiveData
-        val result = viewModel.travelnewsResult.getOrAwaitValue()
+        // setup mock result
+        travelNewsLiveData.value = Result.success(mockTravelNews)
+        attractionsLiveData.value = Result.success(mockAttractionsAll)
 
-        // Verify the result
-        val actualJson = gson.toJson(result?.getOrNull())
-        val expectedJson = gson.toJson(mockTravelNews)
-        assertEquals(expectedJson, actualJson)
+        // Verify TravelNews result
+        val travelNewsResult = viewModel.travelnewsResult.getOrAwaitValue()
+        val actualTravelNewsJson = gson.toJson(travelNewsResult?.getOrNull())
+        val expectedTravelNewsJson = gson.toJson(mockTravelNews)
+        assertEquals(expectedTravelNewsJson, actualTravelNewsJson)
 
-        // Get the value from LiveData
-        val result1 = viewModel.attractionsResult.getOrAwaitValue()
-
-        // Verify the result
-        val actualJson1 = gson.toJson(result1?.getOrNull())
-        val expectedJson1 = gson.toJson(mockAttractionsAll)
-        assertEquals(expectedJson1, actualJson1)
+        // Verify AttractionsAll result
+        val attractionsResult = viewModel.attractionsResult.getOrAwaitValue()
+        val actualAttractionsJson = gson.toJson(attractionsResult?.getOrNull())
+        val expectedAttractionsJson = gson.toJson(mockAttractionsAll)
+        assertEquals(expectedAttractionsJson, actualAttractionsJson)
     }
 
     private fun <T> LiveData<T>.getOrAwaitValue(
