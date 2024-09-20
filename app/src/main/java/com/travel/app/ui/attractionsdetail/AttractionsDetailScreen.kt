@@ -108,6 +108,7 @@ fun AttractionsDetailScreen(
     name: String,
     url: String,
     desc: String,
+    onClickLink: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     LazyColumn() {
@@ -134,7 +135,7 @@ fun AttractionsDetailScreen(
             )
         }
         item {
-            TextLink(url)
+            TextLink(url, onClickLink)
         }
         item {
             Text(

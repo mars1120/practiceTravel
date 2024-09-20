@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
+//open api url: https://www.travel.taipei/open-api/swagger/ui/index#
 interface ITravelRepository {
     fun getTravelNews(lang: String): Flow<Result<TravelNews>>
     fun getAttractionsAll(lang: String): Flow<Result<AttractionsAll>>

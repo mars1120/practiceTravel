@@ -78,6 +78,11 @@ class AttractionsFragment : Fragment(), MenuProvider {
                         name = item.name,
                         url = item.url,
                         desc = item.introduction,
+                        onClickLink = {
+                            viewModel.setCurrentTitle(getString(R.string.title_webview))
+                            viewModel.setSelectedUrl(item.url)
+                            findNavController().navigate(R.id.action_AttractionsDetailFragment_to_WebviewFragment)
+                        },
                         modifier = Modifier.height(160.dp)
                     )
                 } ?: ErrorScreen("Invalid data")

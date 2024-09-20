@@ -24,7 +24,8 @@ data class HomepageUiState(
     val travelNews: TravelNews? = null,
     val attractions: AttractionsAll? = null,
     val error: String? = null,
-    val clickedItem: Int = -1
+    val clickedItem: Int = -1,
+    val selectedUrl: String? = null
 )
 
 class HomepageViewModel(
@@ -74,11 +75,15 @@ class HomepageViewModel(
         _currentTitle.value = title
     }
 
-    fun setClickedItem(item: Int) {
-        _uiState.update { it.copy(clickedItem = item) }
+    fun setSelectedUrl(url: String) {
+        _uiState.update { it.copy(selectedUrl = url) }
     }
 
     fun setLangChanging(isChange: Boolean) {
         _uiState.update { it.copy(isLoading = isChange) }
+    }
+
+    fun setClickedItem(item: Int) {
+        _uiState.update { it.copy(clickedItem = item) }
     }
 }

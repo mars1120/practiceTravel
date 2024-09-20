@@ -9,7 +9,7 @@
         android:id="@+id/HomepageFragment"
         android:name="com.travel.app.HomepageFragment"
         android:label="@string/homepage_fragment_label"
-        tools:layout="@layout/fragment_homepage" >
+        tools:layout="@layout/fragment_homepage">
 
         <action
             android:id="@+id/action_HomepageFragment_to_NewsDetailFragment"
@@ -22,7 +22,7 @@
         android:id="@+id/NewsDetailFragment"
         android:name="com.travel.app.NewsDetailFragment"
         android:label="@string/newsdetail_fragment_label"
-        tools:layout="@layout/fragment_newsdetail" >
+        tools:layout="@layout/fragment_newsdetail">
 
         <action
             android:id="@+id/action_NewsdetailFragment_to_HomepageFragment"
@@ -33,7 +33,15 @@
         android:id="@+id/AttractionsDetailFragment"
         android:name="com.travel.app.AttractionsFragment"
         android:label="@string/title_travel_info"
-        tools:layout="@layout/fragment_attractions" >
+        tools:layout="@layout/fragment_attractions">
 
+        <action
+            android:id="@+id/action_AttractionsDetailFragment_to_WebviewFragment"
+            app:destination="@id/WebviewFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/WebviewFragment"
+        android:name="com.travel.app.WebviewFragment"
+        android:label="@string/title_webview"
+        tools:layout="@layout/fragment_webview" />
 </navigation>

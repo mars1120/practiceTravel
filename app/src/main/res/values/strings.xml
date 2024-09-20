@@ -8,6 +8,7 @@
     <string name="title_travel_taipei">TRAVEL</string>
     <string name="title_news_detail">NEWS</string>
     <string name="title_travel_info">INFO</string>
+    <string name="title_webview" translatable="false">WEB</string>
     <string name="text_news">INFO</string>
     <string name="text_attractions">ATTRACTIONS</string>
     <string name="en" translatable="false">English</string>
