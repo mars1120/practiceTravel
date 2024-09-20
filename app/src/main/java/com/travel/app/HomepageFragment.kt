@@ -7,6 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,8 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
@@ -25,8 +26,9 @@ import com.travel.app.ui.overview.OverviewScreen
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.travel.app.ui.components.LoadingScreen
+import com.travel.app.utils.toExtendedLanguageCode
+import java.util.Locale
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -66,12 +68,13 @@ class HomepageFragment : Fragment(), MenuProvider {
 
     @Composable
     private fun initData(viewModel: HomepageViewModel) {
-        var isLoading by remember { mutableStateOf(true) }
+        val lang by remember { mutableStateOf(Locale.getDefault().language.toExtendedLanguageCode()) }
+        val isLoading by viewModel.isLoading.observeAsState(initial = true)
         val dataStateA by viewModel.travelnewsResult.observeAsState()
         val dataStateB by viewModel.attractionsResult.observeAsState()
 
-        LaunchedEffect(Unit) {
-            viewModel.fetchData()
+        LaunchedEffect(lang) {
+            viewModel.fetchData(lang)
         }
 
         val dataA = remember(dataStateA) {
@@ -79,10 +82,6 @@ class HomepageFragment : Fragment(), MenuProvider {
         }
         val dataB = remember(dataStateB) {
             dataStateB?.getOrNull()?.data
-        }
-
-        LaunchedEffect(dataA, dataB) {
-            isLoading = dataA == null || dataB == null
         }
 
         if (isLoading) {
@@ -119,15 +118,30 @@ class HomepageFragment : Fragment(), MenuProvider {
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            R.id.nav_host_fragment_content_main -> {
-                Snackbar.make(
-                    requireActivity().window.decorView.rootView,
-                    "setting click",
-                    Snackbar.LENGTH_LONG
-                ).show();
+            R.id.action_en -> {
+                if (Locale.getDefault().language.toExtendedLanguageCode() == "en")
+                    return false
+                homepageViewModel.setLangChanging(true)
+                AppCompatDelegate.setApplicationLocales(
+                    LocaleListCompat.forLanguageTags(
+                        "en"
+                    )
+                )
                 true
-
             }
+
+            R.id.action_zh -> {
+                if (Locale.getDefault().language.toExtendedLanguageCode() == "zh")
+                    return false
+                homepageViewModel.setLangChanging(true)
+                AppCompatDelegate.setApplicationLocales(
+                    LocaleListCompat.forLanguageTags(
+                        "zh"
+                    )
+                )
+                true
+            }
+
 
             else -> false
         }

@@ -8,3 +8,10 @@ inline fun <reified T> List<*>.safeTypedList(): List<T>? {
         null
     }
 }
+
+fun String.toExtendedLanguageCode(): String {
+    return when (this) {
+        "zh" -> "zh-tw"
+        else -> this
+    }
+}

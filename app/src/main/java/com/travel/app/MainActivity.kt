@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.toolbar)
         getSupportActionBar()?.setDisplayShowTitleEnabled(false)
         navController = findNavController(R.id.nav_host_fragment_content_main)

@@ -52,13 +52,14 @@ class HomepageViewModelTest {
 
     @Test
     fun verifyTravelApiResult(): Unit = runTest {
+        val testLang = "zh-tw"
         val resultData = getStringFromFiles("travelnewsResultData.txt")
         // Prepare mock data
         val mockTravelNews = Gson().fromJson(resultData, TravelNews::class.java)
         val mockResponse = Response.success(mockTravelNews)
 
         // Mock repository behavior
-        whenever(travelRepository.getTravelNews()).thenReturn(
+        whenever(travelRepository.getTravelNews(testLang)).thenReturn(
             MutableLiveData(Result.success(mockResponse))
         )
 
@@ -68,12 +69,12 @@ class HomepageViewModelTest {
         val mockResponse1 = Response.success(mockAttractionsAll)
 
         // Mock repository behavior
-        whenever(travelRepository.getAttractionsAll()).thenReturn(
+        whenever(travelRepository.getAttractionsAll(testLang)).thenReturn(
             MutableLiveData(Result.success(mockResponse1))
         )
 
         // Call the method under test
-        viewModel.fetchData()
+        viewModel.fetchData(testLang)
 
         // Get the value from LiveData
         val result = viewModel.travelnewsResult.getOrAwaitValue()

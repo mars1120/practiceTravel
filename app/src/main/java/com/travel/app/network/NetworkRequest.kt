@@ -7,7 +7,7 @@ object NetworkRequest {
      */
     private val service = ServiceCreator.create(ApiService::class.java)
 
-    suspend fun getTravelNews() = service.getTravelNews()
-    suspend fun getAttractionsAll() = service.getAttractionsAll()
+    suspend fun getTravelNews(lang: String) = service.getTravelNews(lang = lang)
+    suspend fun getAttractionsAll(lang: String) = service.getAttractionsAll(lang = lang)
 }
 
