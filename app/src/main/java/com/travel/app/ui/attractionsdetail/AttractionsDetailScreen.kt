@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -26,8 +28,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -96,29 +106,73 @@ fun PagerSample(imageList: List<String> = emptyList(), modifier: Modifier = Modi
 fun AttractionsDetailScreen(
     imageList: List<String> = emptyList(),
     name: String,
+    url: String,
+    desc: String,
     modifier: Modifier = Modifier
 ) {
-    Column {
-        if (imageList.isEmpty())
-            Image(
-                painter = painterResource(id = R.drawable.ic_broken_image),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                modifier = modifier.fillMaxWidth()
+    LazyColumn() {
+        item {
+            if (imageList.isEmpty())
+                Image(
+                    painter = painterResource(id = R.drawable.ic_broken_image),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = modifier.fillMaxWidth()
+                )
+            else
+                PagerSample(imageList, modifier = modifier)
+        }
+        item {
+            Text(
+                text = name,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
             )
-        else
-            PagerSample(imageList, modifier = modifier)
+        }
+        item {
+            TextLink(url)
+        }
+        item {
+            Text(
+                text = desc,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            )
+        }
 
-        Text(
-            text = name,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
-            textAlign = TextAlign.Center,
-        )
     }
+}
+
+@Composable
+fun TextLink(urllink: String, onClickLink: (String) -> Unit = {}) {
+    Text(
+        text = AnnotatedString(
+            stringResource(R.string.text_url) + ":",
+            spanStyle = SpanStyle(
+                color = Color.Black
+            )
+        ) + buildAnnotatedString {
+            val link =
+                LinkAnnotation.Url(
+                    urllink,
+                    TextLinkStyles(
+                        SpanStyle(
+                            color = Color.Blue,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    ), linkInteractionListener = {
+                        onClickLink(urllink)
+                    })
+            withLink(link) { append(urllink) }
+        }, Modifier
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth()
+    )
 }
 
 
@@ -128,9 +182,14 @@ fun PagerSamplePreview() {
     PagerSample(modifier = Modifier.height(160.dp))
 }
 
-@Preview(heightDp = 160)
+@Preview(heightDp = 300)
 @Composable
 fun AttractionsDetailScreenPreview() {
-    AttractionsDetailScreen(name = "Title", modifier = Modifier.height(160.dp))
+    AttractionsDetailScreen(
+        name = "Title",
+        url = "https://test.com",
+        desc = "desc",
+        modifier = Modifier.height(160.dp)
+    )
 }
 

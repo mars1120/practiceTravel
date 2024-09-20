@@ -10,4 +10,5 @@
     <string name="title_travel_info">旅遊資訊</string>
     <string name="text_news">最新消息</string>
     <string name="text_attractions">旅遊景點</string>
+    <string name="text_url">網址</string>
 </resources>

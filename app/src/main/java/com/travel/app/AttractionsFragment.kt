@@ -89,7 +89,13 @@ class AttractionsFragment : Fragment(), MenuProvider {
             else -> {
                 attractionsResult?.getOrNull()?.data?.getOrNull(clickedItemIndex!!)?.let { item ->
 
-                    AttractionsDetailScreen( item.images.map { it.src },item.name,modifier = Modifier.height(160.dp))
+                    AttractionsDetailScreen(
+                        item.images.map { it.src },
+                        item.name,
+                        item.url,
+                        item.introduction,
+                        modifier = Modifier.height(160.dp)
+                    )
                 } ?: ErrorScreen("Invalid data")
             }
         }

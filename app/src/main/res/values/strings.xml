@@ -12,4 +12,5 @@
     <string name="text_attractions">ATTRACTIONS</string>
     <string name="en" translatable="false">English</string>
     <string name="zh" translatable="false">中文</string>
+    <string name="text_url">url</string>
 </resources>
