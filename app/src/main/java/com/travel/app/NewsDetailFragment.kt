@@ -11,8 +11,10 @@ import android.view.ViewGroup
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuHost
@@ -48,10 +50,6 @@ class NewsDetailFragment : Fragment(), MenuProvider {
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        homepageViewModel.currentTitle.observe(viewLifecycleOwner) { title ->
-            (requireActivity() as MainActivity).updateTitle(title)
-        }
-
         binding.composeView.apply {
 
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -67,34 +65,46 @@ class NewsDetailFragment : Fragment(), MenuProvider {
 
     @Composable
     fun initData(viewModel: HomepageViewModel) {
-        val clickedItemIndex by viewModel.clickedItem.observeAsState()
-        val travelNewsResult by viewModel.travelnewsResult.observeAsState()
+        val uiState by viewModel.uiState.collectAsState()
+        val context = LocalContext.current
+        //this adjudgment like this travelNewsResult?.getOrNull()?.data?.getOrNull(clickedItemIndex!!)?.let { item ->
+        val currentNews by remember {
+            derivedStateOf {
+                val clickedItem = uiState.clickedItem
+                val newsData = uiState.travelNews?.data
+                if (clickedItem != -1 && newsData != null) {
+                    newsData.getOrNull(clickedItem)
+                } else {
+                    null
+                }
+            }
+        }
 
         when {
-            clickedItemIndex == null || clickedItemIndex == -1 -> {
+            uiState.isLoading -> {
                 LoadingScreen()
             }
 
-            travelNewsResult == null -> {
+            currentNews == null -> {
                 ErrorScreen("No data available")
             }
 
             else -> {
-                var currentContext = LocalContext.current
-                travelNewsResult?.getOrNull()?.data?.getOrNull(clickedItemIndex!!)?.let { item ->
-                    NewsDetailScreen(item, onClickLink = {
-                        val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
-                        val customTabsIntent: CustomTabsIntent = builder.build()
-                        customTabsIntent.launchUrl(currentContext, Uri.parse(it))
-                    })
-                } ?: ErrorScreen("Invalid data")
+                NewsDetailScreen(
+                    item = currentNews!!,
+                    onClickLink = { url ->
+                        val builder = CustomTabsIntent.Builder()
+                        val customTabsIntent = builder.build()
+                        customTabsIntent.launchUrl(context, Uri.parse(url))
+                    }
+                )
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (homepageViewModel.clickedItem.value == -1) {
+        if (homepageViewModel.uiState.value.clickedItem == -1) {
             findNavController().popBackStack()
         }
     }
@@ -114,7 +124,7 @@ class NewsDetailFragment : Fragment(), MenuProvider {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        (requireActivity() as MainActivity).updateTitle(getString(R.string.title_travel_taipei))
+        homepageViewModel.setCurrentTitle(getString(R.string.title_travel_taipei))
         return false
 
     }

@@ -1,17 +1,14 @@
 package com.travel.app.homepage
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.google.gson.Gson
 import com.travel.app.data.AttractionsAll
 import com.travel.app.data.TravelNews
 import com.travel.app.network.ITravelRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.*
@@ -21,14 +18,10 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
-import retrofit2.Response
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 @ExperimentalCoroutinesApi
 class HomepageViewModelTest {
@@ -36,7 +29,7 @@ class HomepageViewModelTest {
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
 
-    private val testDispatcher = UnconfinedTestDispatcher()
+    private val testDispatcher = StandardTestDispatcher()
 
     @Mock
     private lateinit var travelRepository: ITravelRepository
@@ -52,78 +45,42 @@ class HomepageViewModelTest {
     }
 
     @Test
-    fun verifyTravelApiResult(): Unit = runTest {
+    fun verifyTravelApiResult() = runTest {
         val testLang = "zh-tw"
 
-        // Prepare TravelNews mock data
+        // Prepare mock data
         val travelNewsResultData = getStringFromFiles("travelnewsResultData.txt")
         val mockTravelNews = gson.fromJson(travelNewsResultData, TravelNews::class.java)
 
-        // Prepare AttractionsAll mock data
         val attractionsResultData = getStringFromFiles("attractionsResultData.txt")
         val mockAttractionsAll = gson.fromJson(attractionsResultData, AttractionsAll::class.java)
 
         // Mock repository behavior
-        val travelNewsLiveData = MutableLiveData<Result<TravelNews>>()
-        val attractionsLiveData = MutableLiveData<Result<AttractionsAll>>()
-        val mockJob = Job()
-
         whenever(travelRepository.getTravelNews(testLang)).thenReturn(
-            Pair(
-                travelNewsLiveData,
-                mockJob
-            )
+            flowOf(Result.success(mockTravelNews))
         )
         whenever(travelRepository.getAttractionsAll(testLang)).thenReturn(
-            Pair(
-                attractionsLiveData,
-                mockJob
-            )
+            flowOf(Result.success(mockAttractionsAll))
         )
 
         // Call the method under test
         viewModel.fetchData(testLang)
 
-        // setup mock result
-        travelNewsLiveData.value = Result.success(mockTravelNews)
-        attractionsLiveData.value = Result.success(mockAttractionsAll)
+        // Advance the dispatcher to run all coroutines
+        testDispatcher.scheduler.advanceUntilIdle()
 
-        // Verify TravelNews result
-        val travelNewsResult = viewModel.travelnewsResult.getOrAwaitValue()
-        val actualTravelNewsJson = gson.toJson(travelNewsResult?.getOrNull())
+        // Verify results
+        val uiState = viewModel.uiState.value
+        assertFalse(uiState.isLoading)
+        assertNull(uiState.error)
+
+        val actualTravelNewsJson = gson.toJson(uiState.travelNews)
         val expectedTravelNewsJson = gson.toJson(mockTravelNews)
         assertEquals(expectedTravelNewsJson, actualTravelNewsJson)
 
-        // Verify AttractionsAll result
-        val attractionsResult = viewModel.attractionsResult.getOrAwaitValue()
-        val actualAttractionsJson = gson.toJson(attractionsResult?.getOrNull())
+        val actualAttractionsJson = gson.toJson(uiState.attractions)
         val expectedAttractionsJson = gson.toJson(mockAttractionsAll)
         assertEquals(expectedAttractionsJson, actualAttractionsJson)
-    }
-
-    private fun <T> LiveData<T>.getOrAwaitValue(
-        time: Long = 2,
-        timeUnit: TimeUnit = TimeUnit.SECONDS
-    ): T {
-        var data: T? = null
-        val latch = CountDownLatch(1)
-        val observer = object : Observer<T> {
-
-            override fun onChanged(value: T) {
-                data = value
-                latch.countDown()
-                this@getOrAwaitValue.removeObserver(this)
-            }
-        }
-
-        this.observeForever(observer)
-
-        if (!latch.await(time, timeUnit)) {
-            throw TimeoutException("LiveData value was never set.")
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        return data as T
     }
 
     private fun getStringFromFiles(fileName: String): String {

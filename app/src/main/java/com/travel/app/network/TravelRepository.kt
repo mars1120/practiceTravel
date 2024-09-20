@@ -1,40 +1,32 @@
 package com.travel.app.network
 
-import androidx.lifecycle.LiveData
 import com.travel.app.data.AttractionsAll
 import com.travel.app.data.TravelNews
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 
 interface ITravelRepository {
-    fun getTravelNews(
-        lang: String,
-        targetDispatchers: CoroutineContext = Dispatchers.IO
-    ): Pair<LiveData<Result<TravelNews>>, Job>
-
-    fun getAttractionsAll(
-        lang: String,
-        targetDispatchers: CoroutineContext = Dispatchers.IO
-    ): Pair<LiveData<Result<AttractionsAll>>, Job>
+    fun getTravelNews(lang: String): Flow<Result<TravelNews>>
+    fun getAttractionsAll(lang: String): Flow<Result<AttractionsAll>>
 }
 
-class TravelRepositoryImpl : BaseRepository(), ITravelRepository {
-    override fun getTravelNews(
-        lang: String,
-        targetDispatchers: CoroutineContext
-    ): Pair<LiveData<Result<TravelNews>>, Job> =
-        fire(targetDispatchers) {
-            val travelNews = NetworkRequest.getTravelNews(lang)
-            Result.success(travelNews)
+class TravelRepositoryImpl : ITravelRepository {
+    override fun getTravelNews(lang: String): Flow<Result<TravelNews>> = flow {
+        val travelNews = NetworkRequest.getTravelNews(lang)
+        emit(Result.success(travelNews))
+    }.flowOn(Dispatchers.IO)
+        .catch { e ->
+            emit(Result.failure(e))
         }
 
-    override fun getAttractionsAll(
-        lang: String,
-        targetDispatchers: CoroutineContext
-    ) =
-        fire(targetDispatchers) {
-            val attractionsAll = NetworkRequest.getAttractionsAll(lang)
-            Result.success(attractionsAll)
+    override fun getAttractionsAll(lang: String): Flow<Result<AttractionsAll>> = flow {
+        val attractionsAll = NetworkRequest.getAttractionsAll(lang)
+        emit(Result.success(attractionsAll))
+    }.flowOn(Dispatchers.IO)
+        .catch { e ->
+            emit(Result.failure(e))
         }
 }

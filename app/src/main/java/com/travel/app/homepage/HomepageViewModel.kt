@@ -1,97 +1,84 @@
 package com.travel.app.homepage
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.travel.app.data.AttractionsAll
 import com.travel.app.data.TravelNews
 import com.travel.app.network.ITravelRepository
 import com.travel.app.network.TravelRepositoryImpl
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
+
+
+data class HomepageUiState(
+    val isLoading: Boolean = true,
+    val travelNews: TravelNews? = null,
+    val attractions: AttractionsAll? = null,
+    val error: String? = null,
+    val clickedItem: Int = -1
+)
 
 class HomepageViewModel(
     private val repository: ITravelRepository = TravelRepositoryImpl()
 ) : ViewModel() {
 
-    private val _isLoading = MutableLiveData<Boolean>(true)
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _clickedItem = MutableLiveData<Int>(-1)
-    val clickedItem: LiveData<Int> = _clickedItem
-
-    private var activeJobs = AtomicInteger(0)
-
-    fun setClickedItem(item: Int) {
-        _clickedItem.value = item
-    }
-
     private val _currentTitle = MutableLiveData<String>()
     val currentTitle: LiveData<String> = _currentTitle
+
+    private val _uiState = MutableStateFlow(HomepageUiState())
+    val uiState: StateFlow<HomepageUiState> = _uiState.asStateFlow()
+
+    private var currentLanguage: String? = null
+    private var fetchJob: Job? = null
+
+    fun fetchData(lang: String) {
+
+        currentLanguage = lang
+
+        fetchJob?.cancelChildren()
+
+        fetchJob = viewModelScope.launch {
+
+            repository.getTravelNews(lang)
+                .zip(repository.getAttractionsAll(lang)) { newsResult, attractionsResult ->
+                    newsResult to attractionsResult
+                }
+                .cancellable()
+                .collect { (newsResult, attractionsResult) ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            isLoading = false,
+                            travelNews = newsResult.getOrNull(),
+                            attractions = attractionsResult.getOrNull(),
+                            error = when {
+                                newsResult.isFailure -> newsResult.exceptionOrNull()?.message
+                                attractionsResult.isFailure -> attractionsResult.exceptionOrNull()?.message
+                                else -> null
+                            }
+                        )
+                    }
+                }
+        }
+    }
 
     fun setCurrentTitle(title: String) {
         _currentTitle.value = title
     }
 
-
-    fun setLangChanging(isChanging: Boolean) {
-        if (isChanging) {
-            _isLoading.value = true
-        }
+    fun setClickedItem(item: Int) {
+        _uiState.update { it.copy(clickedItem = item) }
     }
 
-    private val _travelnewsResult = MediatorLiveData<Result<TravelNews>?>()
-    val travelnewsResult: LiveData<Result<TravelNews>?> = _travelnewsResult
-
-    private val _attractionsResult = MediatorLiveData<Result<AttractionsAll>?>()
-    val attractionsResult: LiveData<Result<AttractionsAll>?> = _attractionsResult
-
-    private var travelNewsJob: Job? = null
-    private var attractionsJob: Job? = null
-
-
-    fun fetchData(lang: String) {
-        travelNewsJob?.cancel()
-        attractionsJob?.cancel()
-        activeJobs.set(2)
-        val (travelNewsLiveData, travelNewsJobNew) = repository.getTravelNews(lang)
-        travelNewsJob = travelNewsJobNew
-        _travelnewsResult.addSource(travelNewsLiveData) { result ->
-            result.fold(
-                onSuccess = { response ->
-                    _travelnewsResult.value = result
-                    checkLoadingComplete()
-                },
-                onFailure = {
-                    if (it !is CancellationException)
-                        checkLoadingComplete()
-                }
-            )
-
-        }
-
-        val (attractionsLiveData, attractionsJobNew) = repository.getAttractionsAll(lang)
-        attractionsJob = attractionsJobNew
-        _attractionsResult.addSource(attractionsLiveData) { result ->
-            result.fold(
-                onSuccess = { response ->
-                    _attractionsResult.value = result
-                    checkLoadingComplete()
-                },
-                onFailure = {
-                    if (it !is CancellationException)
-                        checkLoadingComplete()
-                }
-            )
-        }
-    }
-
-    private fun checkLoadingComplete() {
-        if (activeJobs.decrementAndGet() == 0) {
-            _isLoading.postValue(false)
-        }
+    fun setLangChanging(isChange: Boolean) {
+        _uiState.update { it.copy(isLoading = isChange) }
     }
 }

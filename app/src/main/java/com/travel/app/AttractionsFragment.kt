@@ -8,16 +8,12 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.view.MenuHost
@@ -29,10 +25,8 @@ import androidx.navigation.fragment.findNavController
 import com.travel.app.databinding.FragmentAttractionsBinding
 import com.travel.app.homepage.HomepageViewModel
 import com.travel.app.ui.attractionsdetail.AttractionsDetailScreen
-import com.travel.app.ui.attractionsdetail.PagerSample
 import com.travel.app.ui.components.LoadingScreen
 import com.travel.app.ui.newsdetail.ErrorScreen
-import com.travel.app.ui.newsdetail.NewsDetailScreen
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -55,10 +49,6 @@ class AttractionsFragment : Fragment(), MenuProvider {
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        homepageViewModel.currentTitle.observe(viewLifecycleOwner) { title ->
-            (requireActivity() as MainActivity).updateTitle(title)
-        }
-
         binding.composeView.apply {
 
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -74,26 +64,20 @@ class AttractionsFragment : Fragment(), MenuProvider {
 
     @Composable
     fun initData(viewModel: HomepageViewModel) {
-        val clickedItemIndex by viewModel.clickedItem.observeAsState()
-        val attractionsResult by viewModel.attractionsResult.observeAsState()
+        val uiState by viewModel.uiState.collectAsState()
 
         when {
-            clickedItemIndex == null || clickedItemIndex == -1 -> {
+            (uiState.isLoading || uiState.clickedItem == -1) -> {
                 LoadingScreen()
             }
 
-            attractionsResult == null -> {
-                ErrorScreen("No data available")
-            }
-
             else -> {
-                attractionsResult?.getOrNull()?.data?.getOrNull(clickedItemIndex!!)?.let { item ->
-
+                uiState.attractions?.data?.getOrNull(uiState.clickedItem)?.let { item ->
                     AttractionsDetailScreen(
-                        item.images.map { it.src },
-                        item.name,
-                        item.url,
-                        item.introduction,
+                        imageList = item.images.map { it.src },
+                        name = item.name,
+                        url = item.url,
+                        desc = item.introduction,
                         modifier = Modifier.height(160.dp)
                     )
                 } ?: ErrorScreen("Invalid data")
@@ -103,7 +87,7 @@ class AttractionsFragment : Fragment(), MenuProvider {
 
     override fun onResume() {
         super.onResume()
-        if (homepageViewModel.clickedItem.value == -1) {
+        if (homepageViewModel.uiState.value.clickedItem == -1) {
             findNavController().popBackStack()
         }
     }
@@ -123,7 +107,7 @@ class AttractionsFragment : Fragment(), MenuProvider {
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        (requireActivity() as MainActivity).updateTitle(getString(R.string.title_travel_taipei))
+        homepageViewModel.setCurrentTitle(getString(R.string.title_travel_taipei))
         return false
 
     }
